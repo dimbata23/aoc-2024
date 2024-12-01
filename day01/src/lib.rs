@@ -15,9 +15,12 @@ pub fn run() -> io::Result<()> {
 }
 
 fn calculate_part1(col1: &[i32], col2: &[i32]) -> u64 {
+    let mut col2 = col2.to_vec();
+    col2.sort();
+
     col1.iter()
         .sorted()
-        .zip(col2.iter().sorted())
+        .zip(col2.iter())
         .map(|(&a, &b)| dist(a, b))
         .sum()
 }
