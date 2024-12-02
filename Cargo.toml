@@ -6,7 +6,8 @@ edition = "2021"
 [dependencies]  # Should be kept as last in Cargo_base.toml
 clap = "4"
 day01 = { path = "day01" }
+day02 = { path = "day02" }
 
 [workspace]
-members = ["day01"]
+members = ["day01", "day02"]
 

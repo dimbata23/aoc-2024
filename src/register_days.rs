@@ -8,6 +8,8 @@ pub fn register_days() -> DayMap {
     let mut days: DayMap = HashMap::new();
     use day01;
     days.insert("day01", day01::run);
+    use day02;
+    days.insert("day02", day02::run);
 
     days
 }

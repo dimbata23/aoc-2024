@@ -57,6 +57,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "day01",
+ "day02",
 ]
 
 [[package]]
@@ -98,6 +99,10 @@ version = "0.1.0"
 dependencies = [
  "itertools",
 ]
+
+[[package]]
+name = "day02"
+version = "0.1.0"
 
 [[package]]
 name = "either"
