@@ -69,6 +69,7 @@ dependencies = [
  "day02",
  "day03",
  "day04",
+ "day05",
 ]
 
 [[package]]
@@ -129,6 +130,10 @@ dependencies = [
  "strum",
  "strum_macros",
 ]
+
+[[package]]
+name = "day05"
+version = "0.1.0"
 
 [[package]]
 name = "either"
