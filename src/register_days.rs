@@ -6,6 +6,8 @@ type DayMap = HashMap<&'static str, DayFunction>;
 
 pub fn register_days() -> DayMap {
     let mut days: DayMap = HashMap::new();
+    use day06;
+    days.insert("day06", day06::run);
     use day01;
     days.insert("day01", day01::run);
     use day04;
