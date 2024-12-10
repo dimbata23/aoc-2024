@@ -1,5 +1,96 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use std::ops::Add;
+use std::ops::Sub;
+
+#[derive(Copy, Clone, Hash, Eq, PartialEq)]
+pub struct Pos2D<T> {
+    pub row: T,
+    pub col: T,
+}
+
+impl<T> Pos2D<T> {
+    pub fn new(row: T, col: T) -> Self {
+        Self { row, col }
+    }
+
+    pub fn to_vec(self) -> Vec2D<T> {
+        Vec2D {
+            x: self.row,
+            y: self.col,
+        }
+    }
+}
+
+impl<T> Pos2D<T>
+where
+    T: Sub<Output = T>,
+{
+    pub fn make_vec_to(self, other: Self) -> Vec2D<T> {
+        Vec2D::from_pos(other - self)
+    }
+}
+
+impl<T> Sub for Pos2D<T>
+where
+    T: Sub<Output = T>,
+{
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self::Output {
+        Self {
+            row: self.row - other.row,
+            col: self.col - other.col,
+        }
+    }
+}
+
+#[derive(Copy, Clone, Hash, Eq, PartialEq)]
+pub struct Vec2D<T> {
+    pub x: T,
+    pub y: T,
+}
+
+impl<T> Vec2D<T> {
+    pub fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+
+    pub fn from_pos(pos: Pos2D<T>) -> Self {
+        Self {
+            x: pos.row,
+            y: pos.col,
+        }
+    }
+
+    pub fn to_pos(self) -> Pos2D<T> {
+        Pos2D::new(self.x, self.y)
+    }
+}
+
+impl<T> Add for Vec2D<T>
+where
+    T: Add<Output = T>,
+{
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl<T> Add<Pos2D<T>> for Vec2D<T>
+where
+    T: Add<Output = T>,
+{
+    type Output = Self;
+    fn add(self, pos: Pos2D<T>) -> Self::Output {
+        Self {
+            x: self.x + pos.row,
+            y: self.y + pos.col,
+        }
+    }
 }
 
 #[cfg(test)]

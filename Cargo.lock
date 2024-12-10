@@ -72,6 +72,9 @@ dependencies = [
  "day05",
  "day06",
  "day07",
+ "day08",
+ "day09",
+ "day10",
 ]
 
 [[package]]
@@ -143,6 +146,21 @@ version = "0.1.0"
 
 [[package]]
 name = "day07"
+version = "0.1.0"
+
+[[package]]
+name = "day08"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "day09"
+version = "0.1.0"
+
+[[package]]
+name = "day10"
 version = "0.1.0"
 
 [[package]]
@@ -230,6 +248,10 @@ name = "rustversion"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e819f2bc632f285be6d7cd36e25940d45b2391dd6d9b939e79de557f7014248"
+
+[[package]]
+name = "shared"
+version = "0.1.0"
 
 [[package]]
 name = "strsim"

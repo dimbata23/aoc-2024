@@ -6,13 +6,16 @@ edition = "2021"
 [dependencies]  # Should be kept as last in Cargo_base.toml
 clap = "4"
 day07 = { path = "day07" }
+day09 = { path = "day09" }
+day08 = { path = "day08" }
 day06 = { path = "day06" }
 day01 = { path = "day01" }
 day04 = { path = "day04" }
 day03 = { path = "day03" }
 day02 = { path = "day02" }
 day05 = { path = "day05" }
+day10 = { path = "day10" }
 
 [workspace]
-members = ["day07", "day06", "day01", "day04", "day03", "day02", "day05"]
+members = ["day07", "day09", "day08", "day06", "day01", "day04", "day03", "day02", "day05", "day10"]
 
