@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
 use std::io;
-use std::ops::AddAssign;
 
 type DataType = u64;
 
@@ -24,7 +23,7 @@ fn calculate_part1(input: &[DataType]) -> usize {
 fn calculate_part2(input: &[DataType]) -> usize {
     let mut map = HashMap::new();
     input.iter().for_each(|&stone| {
-        map.entry(stone).or_insert(0).add_assign(1);
+        *map.entry(stone).or_default() += 1;
     });
 
     (0..75).for_each(|_| map = do_blink_map(&map));
@@ -45,14 +44,14 @@ fn do_blink(input: &[DataType]) -> Vec<DataType> {
 fn do_blink_map(map: &HashMap<DataType, usize>) -> HashMap<DataType, usize> {
     let mut new_map = HashMap::new();
 
-    for (&stone, cnt) in map.iter() {
+    for (&stone, &cnt) in map {
         match process_stone(stone) {
             BlinkRes::Stone(res) => {
-                new_map.entry(res).or_insert(0).add_assign(cnt);
+                *new_map.entry(res).or_default() += cnt;
             }
             BlinkRes::Split((lhs, rhs)) => {
-                new_map.entry(lhs).or_insert(0).add_assign(cnt);
-                new_map.entry(rhs).or_insert(0).add_assign(cnt);
+                *new_map.entry(lhs).or_default() += cnt;
+                *new_map.entry(rhs).or_default() += cnt;
             }
         };
     }
