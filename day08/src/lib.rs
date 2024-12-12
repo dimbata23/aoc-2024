@@ -1,8 +1,6 @@
-use shared::{Pos2D, Vec2D};
+use shared::{parse_2d_map, Pos2D, Vec2D};
 use std::collections::HashSet;
-use std::fs::File;
 use std::io;
-use std::io::BufRead;
 
 type CoordType = i64;
 type Pos2 = Pos2D<CoordType>;
@@ -77,12 +75,7 @@ fn get_antennas(input: &[Vec<char>]) -> Vec<Antenna> {
 }
 
 fn parse_file(file_path: &str) -> io::Result<Vec<Vec<char>>> {
-    Ok(File::open(file_path)
-        .map(io::BufReader::new)?
-        .lines()
-        .filter_map(Result::ok)
-        .map(|line| line.trim().chars().collect())
-        .collect())
+    parse_2d_map(file_path)
 }
 
 #[derive(PartialEq)]

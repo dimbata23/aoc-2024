@@ -1,6 +1,5 @@
-use std::fs::File;
+use shared::parse_2d_map;
 use std::io;
-use std::io::BufRead;
 use strum_macros::EnumIter;
 
 pub fn run() -> io::Result<()> {
@@ -13,7 +12,7 @@ pub fn run() -> io::Result<()> {
     Ok(())
 }
 
-fn calculate_part1(lines: &[String]) -> usize {
+fn calculate_part1(lines: &[Vec<char>]) -> usize {
     (0..lines.len())
         .into_iter()
         .map(|row| {
@@ -25,7 +24,7 @@ fn calculate_part1(lines: &[String]) -> usize {
         .sum()
 }
 
-fn calculate_part2(lines: &[String]) -> usize {
+fn calculate_part2(lines: &[Vec<char>]) -> usize {
     (1..lines.len() - 1)
         .into_iter()
         .map(|row| {
@@ -38,15 +37,15 @@ fn calculate_part2(lines: &[String]) -> usize {
         .sum()
 }
 
-fn is_cross_mass(lines: &[String], row: usize, col: usize) -> bool {
-    if lines[row].chars().nth(col).unwrap() != 'A' {
+fn is_cross_mass(lines: &[Vec<char>], row: usize, col: usize) -> bool {
+    if lines[row][col] != 'A' {
         return false;
     }
 
-    let top_left = lines[row - 1].chars().nth(col - 1).unwrap();
-    let top_right = lines[row - 1].chars().nth(col + 1).unwrap();
-    let bot_left = lines[row + 1].chars().nth(col - 1).unwrap();
-    let bot_right = lines[row + 1].chars().nth(col + 1).unwrap();
+    let top_left = lines[row - 1][col - 1];
+    let top_right = lines[row - 1][col + 1];
+    let bot_left = lines[row + 1][col - 1];
+    let bot_right = lines[row + 1][col + 1];
 
     is_m_or_s(top_left)
         && is_m_or_s(top_right)
@@ -66,12 +65,12 @@ fn are_opposite(ch1: char, ch2: char) -> bool {
     }
 }
 
-fn is_xmas_rec(lines: &[String], row: usize, col: usize, dir: Direction, letter: char) -> bool {
+fn is_xmas_rec(lines: &[Vec<char>], row: usize, col: usize, dir: Direction, letter: char) -> bool {
     if row >= lines.len() || col >= lines[row].len() {
         return false;
     }
 
-    if lines[row].chars().nth(col).unwrap() != letter {
+    if lines[row][col] != letter {
         return false;
     }
 
@@ -84,7 +83,7 @@ fn is_xmas_rec(lines: &[String], row: usize, col: usize, dir: Direction, letter:
     }
 }
 
-fn count_xmas_from(lines: &[String], row: usize, col: usize) -> usize {
+fn count_xmas_from(lines: &[Vec<char>], row: usize, col: usize) -> usize {
     use strum::IntoEnumIterator;
     Direction::iter()
         .map(|dir| is_xmas_rec(&lines, row, col, dir, 'X'))
@@ -114,11 +113,8 @@ fn get_next_coord(row: usize, col: usize, dir: Direction) -> Option<(usize, usiz
     }
 }
 
-fn parse_file(file_path: &str) -> io::Result<Vec<String>> {
-    File::open(file_path)
-        .map(io::BufReader::new)?
-        .lines()
-        .collect()
+fn parse_file(file_path: &str) -> io::Result<Vec<Vec<char>>> {
+    parse_2d_map(file_path)
 }
 
 #[derive(Copy, Clone, EnumIter)]
@@ -142,23 +138,6 @@ mod tests {
         let input = parse_file("sample_input");
         assert!(input.is_ok());
         let input = input.unwrap();
-
-        assert_eq!(
-            input,
-            vec![
-                "MMMSXXMASM",
-                "MSAMXMSMSA",
-                "AMXSXMAAMM",
-                "MSAMASMSMX",
-                "XMASAMXAMM",
-                "XXAMMXXAMA",
-                "SMSMSASXSS",
-                "SAXAMASAAA",
-                "MAMMMXMMMM",
-                "MXMXAXMASX"
-            ]
-        );
-
         let cnt = calculate_part1(&input);
         assert_eq!(cnt, 18);
     }

@@ -1,5 +1,17 @@
+use std::fs::File;
+use std::io;
+use std::io::BufRead;
 use std::ops::Add;
 use std::ops::Sub;
+
+pub fn parse_2d_map(file_path: &str) -> io::Result<Vec<Vec<char>>> {
+    Ok(File::open(file_path)
+        .map(io::BufReader::new)?
+        .lines()
+        .filter_map(Result::ok)
+        .map(|line| line.trim().chars().collect())
+        .collect())
+}
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq)]
 pub struct Pos2D<T> {

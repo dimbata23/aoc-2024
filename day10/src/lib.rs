@@ -1,6 +1,5 @@
-use shared::Pos2D;
+use shared::{parse_2d_map, Pos2D};
 use std::collections::HashSet;
-use std::fs;
 use std::io;
 
 type DataType = usize;
@@ -137,15 +136,13 @@ fn get_neighbours(matrix: &[Vec<DataType>], pos: Pos2) -> Vec<Pos2> {
 }
 
 fn parse_file(file_path: &str) -> std::io::Result<Vec<Vec<DataType>>> {
-    fs::read_to_string(file_path).map(|contents| {
-        contents
-            .lines()
-            .map(|line| {
-                line.chars()
-                    .filter_map(|c| c.to_digit(10))
-                    .map(|d| d as DataType)
-                    .collect()
-            })
-            .collect()
-    })
+    Ok(parse_2d_map(file_path)?
+        .iter()
+        .map(|line| {
+            line.iter()
+                .filter_map(|&c| c.to_digit(10))
+                .map(|d| d as DataType)
+                .collect()
+        })
+        .collect())
 }

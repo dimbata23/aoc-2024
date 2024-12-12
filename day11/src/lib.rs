@@ -96,6 +96,6 @@ fn split_number(n: DataType, index: usize) -> (DataType, DataType) {
 fn parse_file(file_path: &str) -> io::Result<Vec<DataType>> {
     Ok(fs::read_to_string(file_path)?
         .split_whitespace()
-        .filter_map(|s| s.parse::<u64>().ok())
+        .filter_map(|s| s.parse::<DataType>().ok())
         .collect())
 }

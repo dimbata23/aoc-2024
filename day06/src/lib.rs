@@ -1,7 +1,6 @@
+use shared::parse_2d_map;
 use std::collections::HashSet;
-use std::fs::File;
 use std::io;
-use std::io::BufRead;
 
 pub fn run() -> io::Result<()> {
     let input = parse_file("input")?;
@@ -37,12 +36,7 @@ fn find_starting_pos(matrix: &Vec<Vec<char>>) -> Option<(usize, usize)> {
 }
 
 fn parse_file(file_path: &str) -> io::Result<Vec<Vec<char>>> {
-    Ok(File::open(file_path)
-        .map(io::BufReader::new)?
-        .lines()
-        .filter_map(Result::ok)
-        .map(|line| line.trim().chars().collect())
-        .collect())
+    parse_2d_map(file_path)
 }
 
 #[derive(Clone)]
