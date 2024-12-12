@@ -1,8 +1,30 @@
+use std::collections::HashSet;
+use std::fmt::Debug;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
-use std::ops::Add;
-use std::ops::Sub;
+use std::ops::{Add, Sub};
+use strum::{EnumIter, IntoEnumIterator};
+
+#[derive(Hash, Eq, PartialEq, Copy, Clone, EnumIter)]
+pub enum Dir {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
+pub struct Pos2D<T> {
+    pub row: T,
+    pub col: T,
+}
+
+#[derive(Copy, Clone, Hash, Eq, PartialEq)]
+pub struct Vec2D<T> {
+    pub x: T,
+    pub y: T,
+}
 
 pub fn parse_2d_map(file_path: &str) -> io::Result<Vec<Vec<char>>> {
     Ok(File::open(file_path)
@@ -13,10 +35,23 @@ pub fn parse_2d_map(file_path: &str) -> io::Result<Vec<Vec<char>>> {
         .collect())
 }
 
-#[derive(Copy, Clone, Hash, Eq, PartialEq)]
-pub struct Pos2D<T> {
-    pub row: T,
-    pub col: T,
+impl Dir {
+    pub fn opposite(self) -> Self {
+        match self {
+            Dir::Up => Dir::Down,
+            Dir::Down => Dir::Up,
+            Dir::Left => Dir::Right,
+            Dir::Right => Dir::Left,
+        }
+    }
+}
+
+pub fn hashset_dirs_to_vec(set: &HashSet<Dir>) -> Vec<bool> {
+    Dir::iter().map(|dir| set.contains(&dir)).collect()
+}
+
+pub fn dir_in(vec_set: &[bool], dir: Dir) -> bool {
+    vec_set[dir as usize]
 }
 
 impl<T> Pos2D<T> {
@@ -28,6 +63,61 @@ impl<T> Pos2D<T> {
         Vec2D {
             x: self.row,
             y: self.col,
+        }
+    }
+}
+
+impl<T> Pos2D<T>
+where
+    T: TryFrom<i32> + Sub<Output = T>,
+    <T as TryFrom<i32>>::Error: Debug,
+{
+    pub fn left(self) -> Self {
+        Self {
+            row: self.row,
+            col: self.col - 1.try_into().unwrap(),
+        }
+    }
+
+    pub fn up(self) -> Self {
+        Self {
+            row: self.row - 1.try_into().unwrap(),
+            col: self.col,
+        }
+    }
+}
+
+impl<T> Pos2D<T>
+where
+    T: TryFrom<i32> + Add<Output = T>,
+    <T as TryFrom<i32>>::Error: Debug,
+{
+    pub fn right(self) -> Self {
+        Self {
+            row: self.row,
+            col: self.col + 1.try_into().unwrap(),
+        }
+    }
+
+    pub fn down(self) -> Self {
+        Self {
+            row: self.row + 1.try_into().unwrap(),
+            col: self.col,
+        }
+    }
+}
+
+impl<T> Pos2D<T>
+where
+    T: TryFrom<i32> + Add<Output = T> + Sub<Output = T>,
+    <T as TryFrom<i32>>::Error: Debug,
+{
+    pub fn moved(self, dir: Dir) -> Self {
+        match dir {
+            Dir::Up => self.up(),
+            Dir::Down => self.down(),
+            Dir::Left => self.left(),
+            Dir::Right => self.right(),
         }
     }
 }
@@ -53,12 +143,6 @@ where
             col: self.col - other.col,
         }
     }
-}
-
-#[derive(Copy, Clone, Hash, Eq, PartialEq)]
-pub struct Vec2D<T> {
-    pub x: T,
-    pub y: T,
 }
 
 impl<T> Vec2D<T> {
@@ -102,16 +186,5 @@ where
             x: self.x + pos.row,
             y: self.y + pos.col,
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
     }
 }
