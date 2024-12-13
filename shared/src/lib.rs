@@ -1,3 +1,4 @@
+use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use std::collections::HashSet;
 use std::fmt::Debug;
 use std::fs::File;
@@ -14,16 +15,60 @@ pub enum Dir {
     Right,
 }
 
-#[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
+#[derive(
+    Copy,
+    Clone,
+    Hash,
+    Eq,
+    PartialEq,
+    Debug,
+    Add,
+    AddAssign,
+    Sub,
+    SubAssign,
+    Div,
+    DivAssign,
+    Mul,
+    MulAssign,
+)]
 pub struct Pos2D<T> {
     pub row: T,
     pub col: T,
 }
 
-#[derive(Copy, Clone, Hash, Eq, PartialEq)]
+#[derive(
+    Copy,
+    Clone,
+    Hash,
+    Eq,
+    PartialEq,
+    Debug,
+    Add,
+    AddAssign,
+    Sub,
+    SubAssign,
+    Div,
+    DivAssign,
+    Mul,
+    MulAssign,
+)]
 pub struct Vec2D<T> {
     pub x: T,
     pub y: T,
+}
+
+pub fn determinant<T>(col1: Vec2D<T>, col2: Vec2D<T>) -> T
+where
+    T: std::ops::Mul<Output = T> + std::ops::Sub<Output = T>,
+{
+    col1.x * col2.y - col2.x * col1.y
+}
+
+pub fn intersect_vecs<T>(vec1: &Vec<T>, vec2: &Vec<T>) -> Vec<T>
+where
+    T: PartialEq + Clone,
+{
+    vec1.iter().filter(|x| vec2.contains(x)).cloned().collect()
 }
 
 pub fn parse_2d_map(file_path: &str) -> io::Result<Vec<Vec<char>>> {
@@ -131,20 +176,6 @@ where
     }
 }
 
-impl<T> Sub for Pos2D<T>
-where
-    T: Sub<Output = T>,
-{
-    type Output = Self;
-
-    fn sub(self, other: Self) -> Self::Output {
-        Self {
-            row: self.row - other.row,
-            col: self.col - other.col,
-        }
-    }
-}
-
 impl<T> Vec2D<T> {
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
@@ -159,20 +190,6 @@ impl<T> Vec2D<T> {
 
     pub fn to_pos(self) -> Pos2D<T> {
         Pos2D::new(self.x, self.y)
-    }
-}
-
-impl<T> Add for Vec2D<T>
-where
-    T: Add<Output = T>,
-{
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self::Output {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
     }
 }
 
