@@ -4,7 +4,7 @@ use std::fmt::Debug;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
-use std::ops::{Add, Sub};
+use std::ops::{Add, RemAssign, Sub};
 use strum::{EnumIter, IntoEnumIterator};
 
 #[derive(Hash, Eq, PartialEq, Copy, Clone, EnumIter)]
@@ -31,9 +31,9 @@ pub enum Dir {
     Mul,
     MulAssign,
 )]
-pub struct Pos2D<T> {
-    pub row: T,
-    pub col: T,
+pub struct Vec2D<T> {
+    pub x: T,
+    pub y: T,
 }
 
 #[derive(
@@ -52,9 +52,9 @@ pub struct Pos2D<T> {
     Mul,
     MulAssign,
 )]
-pub struct Vec2D<T> {
-    pub x: T,
-    pub y: T,
+pub struct Pos2D<T> {
+    pub row: T,
+    pub col: T,
 }
 
 pub fn determinant<T>(col1: Vec2D<T>, col2: Vec2D<T>) -> T
@@ -100,7 +100,7 @@ pub fn dir_in(vec_set: &[bool], dir: Dir) -> bool {
 }
 
 impl<T> Pos2D<T> {
-    pub fn new(row: T, col: T) -> Self {
+    pub const fn new(row: T, col: T) -> Self {
         Self { row, col }
     }
 
@@ -177,7 +177,7 @@ where
 }
 
 impl<T> Vec2D<T> {
-    pub fn new(x: T, y: T) -> Self {
+    pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
 
@@ -203,5 +203,29 @@ where
             x: self.x + pos.row,
             y: self.y + pos.col,
         }
+    }
+}
+
+impl<T> std::ops::Rem for Vec2D<T>
+where
+    T: std::ops::Rem<Output = T>,
+    Vec2D<T>: std::ops::RemAssign,
+{
+    type Output = Vec2D<T>;
+
+    fn rem(self, rhs: Self) -> Self::Output {
+        let mut new = self;
+        new.rem_assign(rhs);
+        new
+    }
+}
+
+impl<T> std::ops::RemAssign for Vec2D<T>
+where
+    T: std::ops::RemAssign,
+{
+    fn rem_assign(&mut self, rhs: Self) {
+        self.x %= rhs.x;
+        self.y %= rhs.y;
     }
 }
