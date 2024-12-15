@@ -7,7 +7,7 @@ use std::io::BufRead;
 use std::ops::{Add, RemAssign, Sub};
 use strum::{EnumIter, IntoEnumIterator};
 
-#[derive(Hash, Eq, PartialEq, Copy, Clone, EnumIter)]
+#[derive(Debug, Hash, Eq, PartialEq, Copy, Clone, EnumIter)]
 pub enum Dir {
     Up,
     Down,
@@ -80,7 +80,26 @@ pub fn parse_2d_map(file_path: &str) -> io::Result<Vec<Vec<char>>> {
         .collect())
 }
 
+pub fn print_2d_map(map: &[Vec<char>]) {
+    for line in map {
+        for ch in line {
+            print!("{ch}");
+        }
+        println!();
+    }
+}
+
 impl Dir {
+    pub fn from_char(c: char) -> Option<Dir> {
+        match c {
+            '^' => Some(Dir::Up),
+            'v' => Some(Dir::Down),
+            '<' => Some(Dir::Left),
+            '>' => Some(Dir::Right),
+            _ => None,
+        }
+    }
+
     pub fn opposite(self) -> Self {
         match self {
             Dir::Up => Dir::Down,
@@ -227,5 +246,60 @@ where
     fn rem_assign(&mut self, rhs: Self) {
         self.x %= rhs.x;
         self.y %= rhs.y;
+    }
+}
+
+impl<T> Vec2D<T>
+where
+    T: TryFrom<i32> + Sub<Output = T>,
+    <T as TryFrom<i32>>::Error: Debug,
+{
+    pub fn left(self) -> Self {
+        Self {
+            x: self.x - 1.try_into().unwrap(),
+            y: self.y,
+        }
+    }
+
+    pub fn up(self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y - 1.try_into().unwrap(),
+        }
+    }
+}
+
+impl<T> Vec2D<T>
+where
+    T: TryFrom<i32> + Add<Output = T>,
+    <T as TryFrom<i32>>::Error: Debug,
+{
+    pub fn right(self) -> Self {
+        Self {
+            x: self.x + 1.try_into().unwrap(),
+            y: self.y,
+        }
+    }
+
+    pub fn down(self) -> Self {
+        Self {
+            x: self.x,
+            y: self.y + 1.try_into().unwrap(),
+        }
+    }
+}
+
+impl<T> Vec2D<T>
+where
+    T: TryFrom<i32> + Add<Output = T> + Sub<Output = T>,
+    <T as TryFrom<i32>>::Error: Debug,
+{
+    pub fn moved(self, dir: Dir) -> Self {
+        match dir {
+            Dir::Up => self.up(),
+            Dir::Down => self.down(),
+            Dir::Left => self.left(),
+            Dir::Right => self.right(),
+        }
     }
 }
