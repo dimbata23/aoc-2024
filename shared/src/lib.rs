@@ -108,6 +108,24 @@ impl Dir {
             Dir::Right => Dir::Left,
         }
     }
+
+    pub fn rotated_90_cw(self) -> Self {
+        match self {
+            Dir::Up => Dir::Right,
+            Dir::Right => Dir::Down,
+            Dir::Down => Dir::Left,
+            Dir::Left => Dir::Up,
+        }
+    }
+
+    pub fn rotated_90_ccw(self) -> Self {
+        match self {
+            Dir::Up => Dir::Left,
+            Dir::Left => Dir::Down,
+            Dir::Down => Dir::Right,
+            Dir::Right => Dir::Up,
+        }
+    }
 }
 
 pub fn hashset_dirs_to_vec(set: &HashSet<Dir>) -> Vec<bool> {

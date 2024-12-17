@@ -80,6 +80,7 @@ dependencies = [
  "day13",
  "day14",
  "day15",
+ "day16",
 ]
 
 [[package]]
@@ -211,6 +212,14 @@ name = "day15"
 version = "0.1.0"
 dependencies = [
  "shared",
+]
+
+[[package]]
+name = "day16"
+version = "0.1.0"
+dependencies = [
+ "shared",
+ "strum 0.26.3",
 ]
 
 [[package]]
