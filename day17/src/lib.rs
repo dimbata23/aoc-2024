@@ -129,7 +129,7 @@ impl Computer {
 
     fn do_jnz(&mut self) {
         if self.reg_a == 0 {
-            self.ip += 2; // TODO: or just += 1?
+            self.ip += 2;
             return;
         }
 
@@ -168,10 +168,10 @@ impl Computer {
 #[repr(u8)]
 #[derive(Debug, Eq, PartialEq, FromPrimitive)]
 enum Instruction {
-    Adv, // reg_a / (2^combo(op)) -> reg_a
+    Adv, // reg_a / (2.pow(combo(op))) -> reg_a
     Bxl, // reg_b ^ literal(op) -> reg_b
     Bst, // combo(op) % 8 -> reg_b
-    Jnz, // if reg_a == 0 { does nothing } else { ip = literal(op) // don't += 2 }
+    Jnz, // if reg_a == 0 { does nothing } else { ip = literal(op) // don't do `ip += 2` }
     Bxc, // reg_b ^ reg_c -> reg_b (reads an operand but ignores it)
     Out, // combo(op) % 8 -> output (comma separated)
     Bdv, // reg_a / (2^combo(op)) -> reg_b (like Adv, but stores in reg_b)
