@@ -82,6 +82,7 @@ dependencies = [
  "day15",
  "day16",
  "day17",
+ "day18",
 ]
 
 [[package]]
@@ -236,6 +237,13 @@ dependencies = [
  "num",
  "num-derive",
  "num-traits",
+]
+
+[[package]]
+name = "day18"
+version = "0.1.0"
+dependencies = [
+ "shared",
 ]
 
 [[package]]

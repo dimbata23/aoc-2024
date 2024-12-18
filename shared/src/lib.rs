@@ -204,6 +204,48 @@ where
     }
 }
 
+impl Vec2D<usize> {
+    pub fn gen_neighbours(&self) -> Vec<Vec2D<usize>> {
+        let mut vec = vec![];
+
+        if self.y > 0 {
+            vec.push(self.up());
+        }
+
+        vec.push(self.down());
+
+        if self.x > 0 {
+            vec.push(self.left());
+        }
+
+        vec.push(self.right());
+
+        vec
+    }
+
+    pub fn gen_neighbours_constrained(&self, limit: Vec2D<usize>) -> Vec<Vec2D<usize>> {
+        let mut vec = vec![];
+
+        if self.y > 0 {
+            vec.push(self.up());
+        }
+
+        if self.y < limit.y - 1 {
+            vec.push(self.down());
+        }
+
+        if self.x > 0 {
+            vec.push(self.left());
+        }
+
+        if self.x < limit.x - 1 {
+            vec.push(self.right());
+        }
+
+        vec
+    }
+}
+
 impl<T> Pos2D<T>
 where
     T: Sub<Output = T>,
