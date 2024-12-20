@@ -468,7 +468,6 @@ name = "shared"
 version = "0.1.0"
 dependencies = [
  "derive_more",
- "num-traits",
  "strum 0.26.3",
 ]
 

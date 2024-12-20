@@ -1,4 +1,4 @@
-use shared::{parse_2d_map, print_2d_map, Dir, Vec2D};
+use shared::{parse_2d_map, Dir, Vec2D};
 use std::{
     collections::{BinaryHeap, HashMap, HashSet},
     io,
