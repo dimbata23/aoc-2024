@@ -1,4 +1,5 @@
 use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use num_traits::Signed;
 use std::collections::HashSet;
 use std::fmt::Debug;
 use std::fs::File;
@@ -361,5 +362,21 @@ where
             Dir::Left => self.left(),
             Dir::Right => self.right(),
         }
+    }
+}
+
+impl<T> Vec2D<T>
+where
+    T: TryInto<i128> + TryFrom<i128>,
+    <T as TryInto<i128>>::Error: Debug,
+    <T as TryFrom<i128>>::Error: Debug,
+{
+    pub fn manhattan_distance(self, other: Self) -> T {
+        let sx: i128 = self.x.try_into().unwrap();
+        let sy: i128 = self.y.try_into().unwrap();
+        let ox: i128 = other.x.try_into().unwrap();
+        let oy: i128 = other.y.try_into().unwrap();
+        let dist = (sx - ox).abs() + (sy - oy).abs();
+        dist.try_into().unwrap()
     }
 }

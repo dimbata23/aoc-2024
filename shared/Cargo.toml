@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 strum = { version = "0.26", features = ["derive"] }
 derive_more = "0.99"
+num-traits = "0.2"

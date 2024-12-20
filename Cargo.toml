@@ -19,6 +19,7 @@ day03 = { path = "day03" }
 day02 = { path = "day02" }
 day05 = { path = "day05" }
 day18 = { path = "day18" }
+day20 = { path = "day20" }
 day16 = { path = "day16" }
 day11 = { path = "day11" }
 day10 = { path = "day10" }
@@ -26,5 +27,5 @@ day17 = { path = "day17" }
 day19 = { path = "day19" }
 
 [workspace]
-members = ["day07", "day09", "day08", "day06", "day01", "day12", "day15", "day14", "day13", "day04", "day03", "day02", "day05", "day18", "day16", "day11", "day10", "day17", "day19"]
+members = ["day07", "day09", "day08", "day06", "day01", "day12", "day15", "day14", "day13", "day04", "day03", "day02", "day05", "day18", "day20", "day16", "day11", "day10", "day17", "day19"]
 

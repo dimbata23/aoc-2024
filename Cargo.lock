@@ -84,6 +84,7 @@ dependencies = [
  "day17",
  "day18",
  "day19",
+ "day20",
 ]
 
 [[package]]
@@ -250,6 +251,13 @@ dependencies = [
 [[package]]
 name = "day19"
 version = "0.1.0"
+
+[[package]]
+name = "day20"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
 
 [[package]]
 name = "derive_more"
@@ -460,6 +468,7 @@ name = "shared"
 version = "0.1.0"
 dependencies = [
  "derive_more",
+ "num-traits",
  "strum 0.26.3",
 ]
 
