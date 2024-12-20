@@ -1,5 +1,5 @@
 use num::FromPrimitive;
-use num_derive::FromPrimitive;
+use std::collections::VecDeque;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -7,7 +7,7 @@ use std::path::Path;
 type Dt = i128;
 
 pub fn run() -> io::Result<()> {
-    let input = parse_file("sample_2_input")?;
+    let input = parse_file("input")?;
     let res_part1 = calculate_part1(&input);
     let res_part2 = calculate_part2(&input);
 
@@ -18,12 +18,14 @@ pub fn run() -> io::Result<()> {
 
 fn calculate_part1(input: &Computer) -> String {
     let mut computer = input.clone();
-    computer.compute();
+    computer.compute(true);
     computer.get_output()
 }
 
-fn calculate_part2(input: &Computer) -> String {
-    "".to_string()
+fn calculate_part2(input: &Computer) -> Dt {
+    let mut computer = input.clone();
+    computer.reg_a = 0;
+    computer.find_a_output_self()
 }
 
 #[derive(Debug, Clone)]
@@ -37,10 +39,14 @@ struct Computer {
 }
 
 impl Computer {
-    fn compute(&mut self) {
-        self.print();
-        while self.do_next_instruction() {
+    fn compute(&mut self, verbose: bool) {
+        if verbose {
             self.print();
+        }
+        while self.do_next_instruction() {
+            if verbose {
+                self.print();
+            }
         }
     }
 
@@ -50,6 +56,25 @@ impl Computer {
             .map(Dt::to_string)
             .collect::<Vec<String>>()
             .join(",")
+    }
+
+    fn find_a_output_self(&self) -> Dt {
+        let mut queue = VecDeque::new();
+        let mut start_comp = self.clone();
+        start_comp.reg_a = 0;
+        queue.push_back((start_comp, 0));
+
+        while let Some((comp, depth)) = queue.pop_front() {
+            if depth >= self.program.len() {
+                return comp.reg_a;
+            }
+
+            for new_pos in comp.get_all_that_output_self() {
+                queue.push_back((new_pos, depth + 1));
+            }
+        }
+
+        0
     }
 
     fn literal(&self, operand: u8) -> Dt {
@@ -163,20 +188,54 @@ impl Computer {
         println!("{}^", " ".repeat(1 + self.ip * 3));
         println!("-----------------------------------------------------------");
     }
+
+    fn get_all_that_output_self(&self) -> Vec<Computer> {
+        let mut vec = vec![];
+        for bits in 0..=0b111 {
+            let mut comp = self.clone();
+            comp.reg_a = (self.reg_a << 3) | bits;
+            if comp.outputs_self_partialy() {
+                vec.push(comp);
+            }
+        }
+        vec
+    }
+
+    fn outputs_self_partialy(&self) -> bool {
+        let mut comp = self.clone();
+        comp.compute(false);
+        let out: Vec<_> = comp.out.iter().map(|&dt| dt as u8).collect();
+        let prog: Vec<_> = comp
+            .program
+            .iter()
+            .rev()
+            .take(out.len())
+            .rev()
+            .cloned()
+            .collect();
+        out == prog
+    }
 }
 
-#[repr(u8)]
-#[derive(Debug, Eq, PartialEq, FromPrimitive)]
-enum Instruction {
-    Adv, // reg_a / (2.pow(combo(op))) -> reg_a
-    Bxl, // reg_b ^ literal(op) -> reg_b
-    Bst, // combo(op) % 8 -> reg_b
-    Jnz, // if reg_a == 0 { does nothing } else { ip = literal(op) // don't do `ip += 2` }
-    Bxc, // reg_b ^ reg_c -> reg_b (reads an operand but ignores it)
-    Out, // combo(op) % 8 -> output (comma separated)
-    Bdv, // reg_a / (2^combo(op)) -> reg_b (like Adv, but stores in reg_b)
-    Cdv, // reg_a / (2^combo(op)) -> reg_b (like Adv, but stores in reg_c)
+#[allow(non_local_definitions)]
+mod instr {
+    use num_derive::FromPrimitive;
+
+    #[repr(u8)]
+    #[derive(Debug, Eq, PartialEq, FromPrimitive)]
+    pub enum Instruction {
+        Adv, // reg_a / (2.pow(combo(op))) -> reg_a
+        Bxl, // reg_b ^ literal(op) -> reg_b
+        Bst, // combo(op) % 8 -> reg_b
+        Jnz, // if reg_a == 0 { does nothing } else { ip = literal(op) // don't do `ip += 2` }
+        Bxc, // reg_b ^ reg_c -> reg_b (reads an operand but ignores it)
+        Out, // combo(op) % 8 -> output (comma separated)
+        Bdv, // reg_a / (2^combo(op)) -> reg_b (like Adv, but stores in reg_b)
+        Cdv, // reg_a / (2^combo(op)) -> reg_b (like Adv, but stores in reg_c)
+    }
 }
+
+use instr::Instruction;
 
 fn parse_file(file_path: &str) -> io::Result<Computer> {
     let path = Path::new(file_path);
