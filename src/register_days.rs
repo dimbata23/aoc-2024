@@ -42,6 +42,8 @@ pub fn register_days() -> DayMap {
     days.insert("day10", day10::run);
     use day17;
     days.insert("day17", day17::run);
+    use day19;
+    days.insert("day19", day19::run);
 
     days
 }
