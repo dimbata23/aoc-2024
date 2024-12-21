@@ -100,6 +100,15 @@ impl Dir {
         }
     }
 
+    pub fn to_char(self) -> char {
+        match self {
+            Dir::Up => '^',
+            Dir::Down => 'v',
+            Dir::Left => '<',
+            Dir::Right => '>',
+        }
+    }
+
     pub fn opposite(self) -> Self {
         match self {
             Dir::Up => Dir::Down,
@@ -224,22 +233,29 @@ impl Vec2D<usize> {
     }
 
     pub fn gen_neighbours_constrained(&self, limit: Vec2D<usize>) -> Vec<Vec2D<usize>> {
+        self.gen_neighbours_dirs_constrained(limit)
+            .into_iter()
+            .map(|(pos, _)| pos)
+            .collect()
+    }
+
+    pub fn gen_neighbours_dirs_constrained(&self, limit: Vec2D<usize>) -> Vec<(Vec2D<usize>, Dir)> {
         let mut vec = vec![];
 
-        if self.y > 0 {
-            vec.push(self.up());
+        if self.x > 0 {
+            vec.push((self.left(), Dir::Left));
         }
 
         if self.y < limit.y - 1 {
-            vec.push(self.down());
+            vec.push((self.down(), Dir::Down));
         }
 
-        if self.x > 0 {
-            vec.push(self.left());
+        if self.y > 0 {
+            vec.push((self.up(), Dir::Up));
         }
 
         if self.x < limit.x - 1 {
-            vec.push(self.right());
+            vec.push((self.right(), Dir::Right));
         }
 
         vec
