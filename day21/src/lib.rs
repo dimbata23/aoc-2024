@@ -17,16 +17,23 @@ static NUM_PAD: &[&[char]] = &[
 ];
 
 lazy_static! {
-    static ref DIR_PAD_PATHS: PathsMap = shortest_paths(DIR_PAD);
+    static ref DIR_PAD_PATHS: PathsMap = {
+        let mut map = shortest_paths(DIR_PAD);
+        let entry = map.get_mut(&FromTo::new('<', 'A')).unwrap();
+        *entry = vec![vec!['>', '>', '^', 'A']];
+        let entry = map.get_mut(&FromTo::new('A', '<')).unwrap();
+        *entry = vec![vec!['v', '<', '<', 'A']];
+        map
+    };
     static ref NUM_PAD_PATHS: PathsMap = shortest_paths(NUM_PAD);
 }
 
 pub fn run() -> io::Result<()> {
     let input = parse_file("input")?;
     let res_part1 = calculate_part1(&input);
-    let res_part2 = calculate_part2(&input);
-
     println!("Part one result: {res_part1}");
+
+    let res_part2 = calculate_part2(&input);
     println!("Part two result: {res_part2}");
     Ok(())
 }
@@ -110,11 +117,19 @@ impl Pads {
         }
 
         let mut res_paths = vec![];
-
+        //let all_paths = vec![all_paths[0].clone()];
+        //assert!(all_paths
+        //    .windows(2)
+        //    .all(|window| window[0].len() == window[1].len()));
         for path in all_paths {
             let child_paths = self.do_dir_paths(&path, depth - 1);
             res_paths.extend(child_paths.into_iter());
         }
+
+        //assert!(res_paths
+        //    .windows(2)
+        //    .all(|window| window[0].len() == window[1].len()));
+        //vec![res_paths[0].clone()]
 
         res_paths
     }
