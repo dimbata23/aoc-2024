@@ -7,6 +7,7 @@ type Vec2 = Vec2D<usize>;
 type PathsMap = HashMap<FromTo, Vec<CharPath>>;
 type Code = [char; 4];
 type CharPath = Vec<char>;
+type MemoMap = HashMap<(Vec<char>, usize), usize>;
 
 static DIR_PAD: &[&[char]] = &[&['#', '^', 'A'], &['<', 'v', '>']];
 static NUM_PAD: &[&[char]] = &[
@@ -17,14 +18,7 @@ static NUM_PAD: &[&[char]] = &[
 ];
 
 lazy_static! {
-    static ref DIR_PAD_PATHS: PathsMap = {
-        let mut map = shortest_paths(DIR_PAD);
-        let entry = map.get_mut(&FromTo::new('<', 'A')).unwrap();
-        *entry = vec![vec!['>', '>', '^', 'A']];
-        let entry = map.get_mut(&FromTo::new('A', '<')).unwrap();
-        *entry = vec![vec!['v', '<', '<', 'A']];
-        map
-    };
+    static ref DIR_PAD_PATHS: PathsMap = shortest_paths(DIR_PAD);
     static ref NUM_PAD_PATHS: PathsMap = shortest_paths(NUM_PAD);
 }
 
@@ -39,12 +33,34 @@ pub fn run() -> io::Result<()> {
 }
 
 fn calculate_part1(input: &[Code]) -> usize {
-    input.iter().map(|code| Pads::new(2).do_code(code)).sum()
+    Historians::new(&input, 2).control()
 }
 
 fn calculate_part2(input: &[Code]) -> usize {
-    // TODO: Memoisation
-    input.iter().map(|code| Pads::new(25).do_code(code)).sum()
+    Historians::new(&input, 25).control()
+}
+
+struct Historians {
+    codes: Vec<Code>,
+    dir_pads_cnt: usize,
+    memo: MemoMap,
+}
+
+impl Historians {
+    fn new(codes: &[Code], dir_pads_cnt: usize) -> Self {
+        Self {
+            codes: codes.to_vec(),
+            dir_pads_cnt,
+            memo: MemoMap::new(),
+        }
+    }
+
+    fn control(&mut self) -> usize {
+        self.codes
+            .iter()
+            .map(|code| Pads::new(self.dir_pads_cnt).do_code(code, &mut self.memo))
+            .sum()
+    }
 }
 
 struct Pads {
@@ -66,84 +82,62 @@ impl Pads {
         Self { dir_pads_cnt }
     }
 
-    fn do_code(&self, code: &Code) -> usize {
+    fn do_code(&self, code: &Code, memo: &mut MemoMap) -> usize {
         let mut curr_from = 'A';
         let mut price = 0;
-        let mut path = vec![];
         for &ch in code {
-            let (ch_price, ch_path) = self.do_one_char(curr_from, ch);
+            let ch_price = self.get_one_char_min_len(curr_from, ch, memo);
             price += ch_price;
-            path.extend(ch_path);
             curr_from = ch;
         }
 
         price * code_val(code)
     }
 
-    fn do_one_char(&self, from: char, to: char) -> (usize, Vec<char>) {
+    fn get_one_char_min_len(&self, from: char, to: char, memo: &mut MemoMap) -> usize {
         let from_to = FromTo::new(from, to);
         let num_paths = &NUM_PAD_PATHS[&from_to];
         let mut least_len = usize::MAX;
-        let mut least_path = vec![];
 
         for path in num_paths {
-            let dir_paths = self.do_dir_paths(&path, self.dir_pads_cnt);
-            for dir_path in dir_paths {
-                if dir_path.len() < least_len {
-                    least_len = dir_path.len();
-                    least_path = dir_path;
-                }
+            let dir_path_min_len = self.get_min_dir_depth_first(&path, self.dir_pads_cnt, memo);
+            if dir_path_min_len < least_len {
+                least_len = dir_path_min_len;
             }
         }
 
-        (least_len, least_path)
+        least_len
     }
 
-    fn do_dir_paths(&self, path: &[char], depth: usize) -> Vec<Vec<char>> {
-        if depth == 0 {
-            return vec![path.to_vec()];
+    fn get_min_dir_depth_first(&self, path: &[char], depth: usize, memo: &mut MemoMap) -> usize {
+        let key = (path.to_vec(), depth);
+        if let Some(&len) = memo.get(&key) {
+            return len;
         }
+
+        if depth == 0 {
+            memo.insert(key, path.len());
+            return path.len();
+        }
+
         let mut curr_from = 'A';
-        let mut all_paths = vec![];
+        let mut least_len = 0;
         for &ch in path {
             let from_to = FromTo::new(curr_from, ch);
             let child_paths = &DIR_PAD_PATHS[&from_to];
-            if all_paths.is_empty() {
-                all_paths = child_paths.to_vec();
-            } else {
-                all_paths = Self::do_comb_paths(&all_paths, &child_paths);
+            let mut child_least_len = usize::MAX;
+            for path in child_paths {
+                let child_min = self.get_min_dir_depth_first(&path, depth - 1, memo);
+                if child_min < child_least_len {
+                    child_least_len = child_min;
+                }
             }
+            least_len += child_least_len;
             curr_from = ch;
         }
 
-        let mut res_paths = vec![];
-        //let all_paths = vec![all_paths[0].clone()];
-        //assert!(all_paths
-        //    .windows(2)
-        //    .all(|window| window[0].len() == window[1].len()));
-        for path in all_paths {
-            let child_paths = self.do_dir_paths(&path, depth - 1);
-            res_paths.extend(child_paths.into_iter());
-        }
-
-        //assert!(res_paths
-        //    .windows(2)
-        //    .all(|window| window[0].len() == window[1].len()));
-        //vec![res_paths[0].clone()]
-
-        res_paths
-    }
-
-    fn do_comb_paths(prefixes: &[Vec<char>], suffixes: &[Vec<char>]) -> Vec<Vec<char>> {
-        let mut vec = vec![];
-        for prefix in prefixes {
-            for suffix in suffixes {
-                let mut comb = prefix.to_vec();
-                comb.extend_from_slice(suffix);
-                vec.push(comb);
-            }
-        }
-        vec
+        memo.insert(key, least_len);
+        least_len
     }
 }
 
